@@ -1,7 +1,22 @@
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+{% extends "base.html.twig" %}
 
 
-<body>
-{{ question }}
-{{ form(form) }}
-</body>
+  {% block content %}
+
+
+
+
+
+    <div class="row bg-warning">
+        <div class="col-12">{{ question }}</div>
+    </div>
+
+<div class="row bg-success">
+        <div class="col-12">
+
+        {{ form_errors(form.name) }}
+ {# {{ form_label(form.name) }}  #} 
+{{ form_widget(form.name) }}
+    </div>
+
+{% endblock %}

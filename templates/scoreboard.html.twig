@@ -1,0 +1,11 @@
+{% extends "base.html.twig" %}
+ 
+  {% block content %}
+
+   <h1>Mes scores</h1>
+ {% for score in scores %}
+     <h3> <a href="/quiz/{{score['id']}}">{{ score['name'] }} </a></h3><br>
+     votre score etait de {{ score['score']}} 
+
+     <br>
+    {% endfor %}{% endblock %}

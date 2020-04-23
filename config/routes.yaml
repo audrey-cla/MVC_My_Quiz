@@ -6,6 +6,11 @@ quiz_index:
     path: /quiz
     controller: App\Controller\QuizController::index
 
+scoreboard:
+    path: /quiz/scores
+    controller: App\Controller\QuizController::score_display
+
+
 quiz_show:
     path: /quiz/{id}
     controller: App\Controller\QuizController::show_quiz
@@ -13,3 +18,6 @@ quiz_show:
 quiz_question:
     path: /quiz/{id}/{question_num}
     controller: App\Controller\QuizController::show_question
+
+
+
