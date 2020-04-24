@@ -1,22 +1,13 @@
 {% extends "base.html.twig" %}
 
 
-  {% block content %}
-
-
-
-
+  {% block body %}
 
     <div class="row bg-warning">
         <div class="col-12">{{ question }}</div>
     </div>
-
 <div class="row bg-success">
-        <div class="col-12">
-
-        {{ form_errors(form.name) }}
- {# {{ form_label(form.name) }}  #} 
-{{ form_widget(form.name) }}
+       {{ form(form) }}
     </div>
 
 {% endblock %}

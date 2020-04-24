@@ -19,5 +19,11 @@ quiz_question:
     path: /quiz/{id}/{question_num}
     controller: App\Controller\QuizController::show_question
 
+dashboard:
+    path: /dashboard
+    controller: App\Controller\UserController::dashboard
 
 
+validation:
+    path: /validation/{id}/{token}
+    controller: App\Controller\UserController::validation
