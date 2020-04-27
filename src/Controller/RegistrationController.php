@@ -24,7 +24,6 @@ class RegistrationController extends AbstractController
         $user = new User();
         $form = $this->createForm(RegistrationFormType::class, $user);
         $form->handleRequest($request);
-
         if ($form->isSubmitted() && $form->isValid()) {
             $user->setPassword(
                 $passwordEncoder->encodePassword(
@@ -56,7 +55,7 @@ class RegistrationController extends AbstractController
                 'main' // firewall name in security.yaml
             );
         }
-
+        
         return $this->render('registration/register.html.twig', [
             'registrationForm' => $form->createView(),
         ]);

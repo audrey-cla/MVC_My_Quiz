@@ -1,0 +1,15 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Create{% endblock %}
+{% block body %}
+ {% if app.user %}
+creer un quiz
+
+  {{ form(form) }}
+
+ {% else %}
+  Vous devez etre connecté
+ {% endif %}
+ {% endblock %}
+
+ 

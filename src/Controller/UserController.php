@@ -19,7 +19,6 @@ class UserController extends AbstractController
         return $this->render('user/index.html.twig');
     }
 
-
     public function validation($id, $token)
     {
         $user = $this->getDoctrine()->getRepository(User::class)->findOneBy(array('id' => $id));

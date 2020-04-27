@@ -5,8 +5,10 @@ namespace App\Controller;
 use App\Entity\Categorie;
 use App\Entity\Question;
 use App\Entity\Reponse;
+use App\Entity\Score;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Csrf\CsrfExtension;
@@ -25,6 +27,47 @@ class QuizController extends AbstractController
     {
         $quizzs = $this->getDoctrine()->getRepository(Categorie::class)->findAll();
         return $this->render('quiz/index.html.twig', ['quizzs' => $quizzs]);
+    }
+
+    public function createQuiz(Request $request)
+    {
+      
+
+
+
+
+
+
+
+      
+        $form = $this->createFormBuilder();
+        $form = $form->add("Titre", TextType::class);
+        // for ($x = 1; $x <= $id; $x++) {
+        //     $form = $form
+        //         ->add("$x", TextType::class, ['label' => "Question $x"])
+        //         ->add("reponse:$x" . ":1", TextType::class, ['label' => "Réponse A"])
+        //         ->add("reponse:$x" . ":2", TextType::class, ['label' => "Réponse B"])
+        //         ->add("reponse:$x" . ":3", TextType::class, ['label' => "Réponse C"]);
+        // }
+        $form = $form->add('save', SubmitType::class, ['label' => 'Valider le quiz']);
+        $form = $form->getForm();
+        $form->handleRequest($request);
+
+
+        if ($request->isMethod('POST')) {
+            if ($form->isSubmitted() && $form->isValid()) {
+                // $registerQuiz = new Categorie();
+                // $registerQuiz->setName($form->get("Titre"));
+                // $entityManager = $this->getDoctrine()->getManager();
+                // $entityManager->persist($registerQuiz);
+                // $entityManager->flush();
+            }
+        }
+        // return $this->render('quiz/question.html.twig', ['form' => $form->createView(), 'question' => $question->getQuestion()]);
+
+        return $this->render('quiz/create.html.twig', ['form' => $form->createView()]);
+
+        // return $this->render('quiz/create.html.twig');
     }
 
     public function show_quiz($id, Request $request)
@@ -59,7 +102,6 @@ class QuizController extends AbstractController
             $session = new Session();
             $session->start();
         }
-
         $lastQuestion = $this->getDoctrine()->getRepository(Question::class)->findOneBy(array('idCategorie' => $id), array('id' => 'DESC'));
         $offset = $question_num - 1;
         $question = $this->getDoctrine()->getRepository(Question::class)->findBy(array("idCategorie" => $id), null, 1, $offset);
@@ -105,34 +147,63 @@ class QuizController extends AbstractController
 
                 if ($question == $lastQuestion) {
                     $session->set("quizz/" . $id, $session->get('reponses'));
-                    return $this->render('results.html.twig', ['resultat' => $session->get('reponses'), 'outof' => $question_num]);
+                    $user = $this->getUser();
+                    if ($user != NULL) {
+                        $user = $user->getId();
+                    }
+                    $cherche = $this->getDoctrine()->getRepository(Score::class)->findBy(array("user_id" => $user, "categorie_id" => $id));
+                    if ($cherche == NULL) {
+                        $registerScore = new Score();
+                    } else {
+                        $registerScore = $cherche[0];
+                    }
+                    $registerScore->setUserId($user);
+                    $registerScore->setCategorieId($id);
+                    $registerScore->setScore($session->get('reponses'));
+                    $entityManager = $this->getDoctrine()->getManager();
+                    $entityManager->persist($registerScore);
+                    $entityManager->flush();
+
+                    return $this->render('quiz/results.html.twig', ['resultat' => $session->get('reponses'), 'outof' => $question_num]);
                 } else {
                     $next = $question_num + 1;
-                    return $this->render('reponse.html.twig', ['id' => $id, 'next' => $next]);
+                    return $this->render('quiz/reponse.html.twig', ['id' => $id, 'next' => $next]);
                 }
             }
         }
-        return $this->render('question.html.twig', ['form' => $form->createView(), 'question' => $question->getQuestion()]);
+        return $this->render('quiz/question.html.twig', ['form' => $form->createView(), 'question' => $question->getQuestion()]);
     }
-
 
     public function score_display(Request $request)
     {
-        if ($request->getSession()) {
-            $session = $request->getSession();
-            $scores = $session->all();
-            $total = array();
-            foreach ($scores as $id => $value) {
-                if (preg_match('#^quizz/#', $id) === 1) {
-                    $id = explode("/", $id);
-                    $id = $id[1];
-                    $name = $this->getDoctrine()->getRepository(Categorie::class)->find($id);
-                    $name = $name->getName();
-                    array_push($total, ["name"=>$name,"id" => "$id", "score" => $value]);
+        if ($this->getUser() == NULL) {
+
+            if ($request->getSession()) {
+                $session = $request->getSession();
+                $scores = $session->all();
+                $total = array();
+                foreach ($scores as $id => $value) {
+                    if (preg_match('#^quizz/#', $id) === 1) {
+                        $id = explode("/", $id);
+                        $id = $id[1];
+                        $name = $this->getDoctrine()->getRepository(Categorie::class)->find($id);
+                        $name = $name->getName();
+                        array_push($total, ["name" => $name, "id" => "$id", "score" => $value]);
+                    }
                 }
             }
+        } else {
+            $user_id = $this->getUser()->getID();
+            $avant = $this->getDoctrine()->getRepository(Score::class)->findBy(array("user_id" => $user_id));
+            $total = array();
+            foreach ($avant as $test) {
+                $id = $test->getCategorieId();
+                $score = $test->getScore();
+                $name = $this->getDoctrine()->getRepository(Categorie::class)->find($id);
+                $name = $name->getName();
+                array_push($total, ["name" => $name, "id" => "$id", "score" => $score]);
+            }
         }
-        
-        return $this->render('scoreboard.html.twig', ['scores'=>$total]);
+        return $this->render('quiz/scoreboard.html.twig', ['scores' => $total]);
     }
 }

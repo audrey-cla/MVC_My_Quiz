@@ -20,9 +20,13 @@
      {% block navbar %}
         <a class="nav-item nav-link active" href="/quiz">Tous les Quizz <span class="sr-only">(current)</span></a>
       <a class="nav-item nav-link" href="/quiz/scores">Mes Scores</a>
-      <a class="nav-item nav-link" href="#">Pricing</a>
         {% endblock %}
 
+ {% if app.user %}
+   <div class="" style="position: absolute; right: 0"><a href="/dashboard" class="m-4">{{ app.user.username }}</a><a class="m-4" href="/logout">logout</a></div>
+ {% else %}
+  <div class="" style="position: absolute; right: 0"><a href="/register" class="m-4">register</a><a class="m-4" href="/login">login</a></div>
+ {% endif %}
       
     </div>
   </div>
@@ -32,13 +36,9 @@
       
   {% block body %}
 
- 
-    
+
+  
     {% endblock %}
-
-       
-
-     
         {% block javascripts %}{% endblock %}
         </div>
     </div>

@@ -1,12 +1,25 @@
 {% extends "base.html.twig" %}
 
-
 {% block body %}
 
+
+ {% if app.user%} 
+
+
+
+ {% if app.user.validated == 1 %} 
+
+Bienvenue {{ app.user.username }} ! 
+
+
+{% else %}
+Votre compte n'est pas validé, veuiller vérifier vos emails.
+ {% endif%}
+
+
+{% else %}
+
+Vous n'etes pas connecté
+ {% endif%}
+
 {% endblock %}
-
-
-
-
-
-

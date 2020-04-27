@@ -1,0 +1,22 @@
+{% extends "base.html.twig" %}
+
+
+{% block body %}
+
+
+ {% if app.user%} 
+
+   {{ dump(app.user)}}
+{% else %}
+
+Vous n'etes pas connecté
+ {% endif%}
+
+
+{% endblock %}
+
+
+
+
+
+

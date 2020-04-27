@@ -27,3 +27,20 @@ dashboard:
 validation:
     path: /validation/{id}/{token}
     controller: App\Controller\UserController::validation
+
+modif_profile:
+    path: /user/{id}/edit
+    controller: App\Controller\UserController::edit
+
+profile:
+    path: /user/{id}
+    controller: App\Controller\UserController::show_profile
+
+
+createQuiz:
+    path: /create
+    controller: App\Controller\QuizController::createQuiz
+
+createQuiznumber:
+    path: /create/{id}
+    controller: App\Controller\QuizController::createQuiz2

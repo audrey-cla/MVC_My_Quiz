@@ -40,6 +40,11 @@ class User implements UserInterface
      */
     private $validated;
 
+    /**
+     * @ORM\Column(type="text")
+     */
+    private $username;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -64,7 +69,7 @@ class User implements UserInterface
      */
     public function getUsername(): string
     {
-        return (string) $this->email;
+        return (string) $this->username;
     }
 
     /**
@@ -126,6 +131,13 @@ class User implements UserInterface
     public function setValidated(?string $validated): self
     {
         $this->validated = $validated;
+
+        return $this;
+    }
+
+    public function setUsername(string $username): self
+    {
+        $this->username = $username;
 
         return $this;
     }
