@@ -36,7 +36,7 @@ class User implements UserInterface
     private $password;
 
     /**
-     * @ORM\Column(type="string", length=2, nullable=true)
+     * @ORM\Column(type="string", length=888, nullable=true)
      */
     private $validated;
 
@@ -141,4 +141,6 @@ class User implements UserInterface
 
         return $this;
     }
+
+
 }

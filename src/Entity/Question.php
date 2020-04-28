@@ -24,7 +24,7 @@ class Question
     /**
      * @var int|null
      *
-     * @ORM\Column(name="id_categorie", type="integer", nullable=true, options={"default"="NULL"})
+     * @ORM\Column(name="categorie_id", type="integer", nullable=true, options={"default"="NULL"})
      */
     private $idCategorie = 'NULL';
 

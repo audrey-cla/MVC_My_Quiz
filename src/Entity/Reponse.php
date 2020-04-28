@@ -24,7 +24,7 @@ class Reponse
     /**
      * @var int|null
      *
-     * @ORM\Column(name="id_question", type="integer", nullable=true, options={"default"="NULL"})
+     * @ORM\Column(name="question_id", type="integer", nullable=true, options={"default"="NULL"})
      */
     private $idQuestion = 'NULL';
 

@@ -10,6 +10,10 @@
  {% if app.user.validated == 1 %} 
 
 Bienvenue {{ app.user.username }} ! 
+<br>
+<a href="/create"> creer un quizz</a><br>
+<a href="/user/{{app.user.id}}/edit"> modifier mon profil</a>
+
 
 
 {% else %}
