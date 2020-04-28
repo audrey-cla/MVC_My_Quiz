@@ -43,4 +43,4 @@ createQuiz:
 
 createQuiznumber:
     path: /create/{id}
-    controller: App\Controller\QuizController::createQuiz2
+    controller: App\Controller\QuizController::createQuiz

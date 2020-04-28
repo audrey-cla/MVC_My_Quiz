@@ -11,6 +11,7 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\Extension\Core\Type\RadioType;
 use Symfony\Component\Form\Extension\Csrf\CsrfExtension;
 use Symfony\Component\Form\Forms;
 use Symfony\Component\HttpFoundation\Request;
@@ -29,45 +30,71 @@ class QuizController extends AbstractController
         return $this->render('quiz/index.html.twig', ['quizzs' => $quizzs]);
     }
 
-    public function createQuiz(Request $request)
+    public function createQuiz(Request $request, $id = 10)
     {
-      
-
-
-
-
-
-
-
-      
         $form = $this->createFormBuilder();
         $form = $form->add("Titre", TextType::class);
-        // for ($x = 1; $x <= $id; $x++) {
-        //     $form = $form
-        //         ->add("$x", TextType::class, ['label' => "Question $x"])
-        //         ->add("reponse:$x" . ":1", TextType::class, ['label' => "Réponse A"])
-        //         ->add("reponse:$x" . ":2", TextType::class, ['label' => "Réponse B"])
-        //         ->add("reponse:$x" . ":3", TextType::class, ['label' => "Réponse C"]);
-        // }
+        for ($x = 1; $x <= $id; $x++) {
+            $form = $form
+                ->add("question:$x", TextType::class, ['label' => "Question $x"])
+                ->add("reponse:$x" . ":1", TextType::class, ['label' => "Réponse A"])
+                ->add("reponse:$x" . ":2", TextType::class, ['label' => "Réponse B"])
+                ->add("reponse:$x" . ":3", TextType::class, ['label' => "Réponse C"])
+                ->add("bonne:$x", ChoiceType::class, [
+                    'choices'  => [
+                        "Reponse A" => 1,
+                        "Reponse B" => 2,
+                        "Reponce C" => 3,
+                    ],
+                    'expanded' => true,
+                    'multiple' => false
+                ]);
+        }
         $form = $form->add('save', SubmitType::class, ['label' => 'Valider le quiz']);
         $form = $form->getForm();
         $form->handleRequest($request);
-
-
+        $data = $form->getData();
         if ($request->isMethod('POST')) {
             if ($form->isSubmitted() && $form->isValid()) {
-                // $registerQuiz = new Categorie();
-                // $registerQuiz->setName($form->get("Titre"));
-                // $entityManager = $this->getDoctrine()->getManager();
-                // $entityManager->persist($registerQuiz);
-                // $entityManager->flush();
+                $registerQuiz = new Categorie();
+                $registerQuiz->setName($form->get("Titre")->getData());
+                $entityManager = $this->getDoctrine()->getManager();
+                $entityManager->persist($registerQuiz);
+                $entityManager->flush();
+                $catid = $registerQuiz->getID();
+                for ($x = 1; $x <= $id; $x++) {
+                    foreach ($data as $question => $valeurques) {
+                        if ($question == "question:$x") {
+                            $bonnerep = $form->get("bonne:$x")->getData();
+                            $registerQues = new Question();
+                            $registerQues->setQuestion($valeurques);
+                            $registerQues->setIdCategorie($catid);
+                            $entityManager = $this->getDoctrine()->getManager();
+                            $entityManager->persist($registerQues);
+                            $entityManager->flush();
+                            $tmp = 1;
+                            foreach ($data as $reponse => $valeurrep) {
+                                if (strpos($reponse, "reponse:$x") === 0) {
+                                    $CheckGoodAnswer = 0;
+                                    if ($bonnerep == $tmp) {
+                                        $CheckGoodAnswer = 1;
+                                    }
+                                    $tmp++;
+                                    $registerQuiz = new Reponse();
+                                    $registerQuiz->setIdQuestion($registerQues->getID());
+                                    $registerQuiz->setReponse($valeurrep);
+                                    $registerQuiz->setReponseExpected($CheckGoodAnswer);
+                                    $entityManager = $this->getDoctrine()->getManager();
+                                    $entityManager->persist($registerQuiz);
+                                    $entityManager->flush();
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
-        // return $this->render('quiz/question.html.twig', ['form' => $form->createView(), 'question' => $question->getQuestion()]);
-
         return $this->render('quiz/create.html.twig', ['form' => $form->createView()]);
-
-        // return $this->render('quiz/create.html.twig');
     }
 
     public function show_quiz($id, Request $request)
