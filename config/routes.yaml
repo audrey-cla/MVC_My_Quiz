@@ -32,9 +32,19 @@ modif_profile:
     path: /user/{id}/edit
     controller: App\Controller\UserController::edit
 
+allUser:
+    path: /user/all
+    controller: App\Controller\UserController::show_all
+
 profile:
     path: /user/{id}
     controller: App\Controller\UserController::show_profile
+
+
+
+delete:
+    path: /delete/user/{id}
+    controller: App\Controller\UserController::delete
 
 
 createQuiz:

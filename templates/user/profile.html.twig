@@ -6,12 +6,27 @@
 
  {% if app.user%} 
 {% if is_granted('ROLE_ADMIN') %}
-    <a href="...">Delete</a>fregtry
+    <a href="/delete/user/{{user_data.id}}">Delete user</a>
+    <a href="/user/{{user_data.id}}/edit">Edit user</a>
+
 {% endif %}
 
 
+<ul>
+    <li> Username : {{user_data.username}}</li>
+    <li>email : {{user_data.email}}</li>
+</ul>
 
-   {{ form(form)}}
+{% if scores is empty %}
+   Aucune score pour le moment !
+{% else %}
+    {% for score in scores %}
+     <h3> <a href="/quiz/{{score['id']}}">{{ score['name'] }} </a></h3><br>
+     votre score etait de {{ score['score']}} 
+
+     <br>
+    {% endfor %}
+{% endif %}
 
 {% else %}
 

@@ -1,0 +1,42 @@
+{% extends "base.html.twig" %}
+
+
+{% block body %}
+
+
+ {% if app.user.id == user_data.id or is_granted('ROLE_ADMIN')%} 
+
+{{ form_start(form) }}
+
+{{ form_rest(form) }}
+
+
+{{ form_end(form) }}
+
+
+
+ {% if user_data.validated != 1 %} 
+
+{% if is_granted('ROLE_ADMIN') %}
+    <a href="/validation/{{user_data.id}}z">Confirm user</a>
+{% endif %}
+{% endif %}
+
+
+    <a href="/delete/user/{{user_data.id}}">Supprimer le compte</a> 
+
+{% else %}
+
+Vous n'etes pas connecté
+ {% endif%}
+
+
+{{ form_errors(form) }}
+
+{% endblock %}
+
+
+
+
+
+

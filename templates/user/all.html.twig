@@ -1,0 +1,14 @@
+{% extends "base.html.twig" %} {% block body %} 
+
+
+ {% for user in users %}
+        <a href="/user/{{user.id}}">{{ user.username }}</a><br>
+    {% endfor %}
+
+
+
+
+
+
+
+{% endblock %}
