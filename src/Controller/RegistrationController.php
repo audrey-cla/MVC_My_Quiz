@@ -23,6 +23,9 @@ class RegistrationController extends AbstractController
     public function register(MailerInterface $mailer, Request $request, UserPasswordEncoderInterface $passwordEncoder, GuardAuthenticatorHandler $guardHandler, LoginFormAuthenticator $authenticator): Response
     {
         $user = new User();
+
+        $role = $user->getRoles();
+
         $form = $this->createForm(RegistrationFormType::class, $user);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
@@ -34,7 +37,7 @@ class RegistrationController extends AbstractController
             );
             $specialtoken = $user->getEmail();
             $specialtoken = hash('MD5', $specialtoken);
-
+            $user->setRoles($role);
             $entityManager = $this->getDoctrine()->getManager();
             $user->setValidated($specialtoken);
             // $user->setUsername($form->get('username')->getData());
@@ -58,7 +61,7 @@ class RegistrationController extends AbstractController
                 'main' // firewall name in security.yaml
             );
         }
-        
+
         return $this->render('registration/register.html.twig', [
             'registrationForm' => $form->createView(),
         ]);

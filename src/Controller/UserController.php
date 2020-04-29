@@ -45,11 +45,12 @@ class UserController extends AbstractController
     {
 
         $user = $this->getUser();
+
         $form = $this->createFormBuilder();
-        $form = $form->add("Username", TextType::class, ['data' => $user->getUsername()])
-        ->add("email", TextType::class, ['data' => $user->getEmail()])
-        ->add("plainPassword", TextType::class)
-        ->add('save', SubmitType::class, ['label' => 'Valider le quiz']);
+        $form = $form->add("username", TextType::class, ['data' => $user->getUsername()])
+            ->add("email", TextType::class, ['data' => $user->getEmail()])
+            ->add("Password", TextType::class)
+            ->add('save', SubmitType::class, ['label' => 'Effectuer les changements']);
         $form = $form->getForm();
         $form->handleRequest($request);
 
@@ -57,26 +58,31 @@ class UserController extends AbstractController
             $user->setPassword(
                 $passwordEncoder->encodePassword(
                     $user,
-                    $form->get('plainPassword')->getData()
+                    $form->get('Password')->getData()
                 )
             );
-            $specialtoken = $user->getEmail();
-            $specialtoken = hash('MD5', $specialtoken);
 
-            $entityManager = $this->getDoctrine()->getManager();
+            if ($user->getEmail() == $form->get("email")->getData()) {
+                $specialtoken = 1;
+            } else {
+                $specialtoken = hash('MD5', $form->get("email")->getData());
+                $email = (new Email())
+                    ->from('quiveutgagnerdelargentenmasse@example.com')
+                    ->to($form->get("email")->getData())
+                    ->cc('mailtrapqa@example.com')
+                    ->html('validez votre compte en cliquant sur le  <a href="http://127.0.0.1:8000/validation/' . $user->getId() . '/' . $specialtoken . '">lien suivant</a>');
+                $mailer->send($email);
+                $user->setEmail($form->get("email")->getData());
+
+            }
+
+            $user->setUsername($form->get("username")->getData());
             $user->setValidated($specialtoken);
+            $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($user);
             $entityManager->flush();
 
-            $id = $user->getId();
-
-            $email = (new Email())
-                ->from('quiveutgagnerdelargentenmasse@example.com')
-                ->to($user->getEmail())
-                ->cc('mailtrapqa@example.com')
-                ->html('validez votre compte en cliquant sur le  <a href="http://127.0.0.1:8000/validation/' . $id . '/' . $specialtoken . '">lien suivant</a>');
-            $mailer->send($email);
-
+            // return new Response("$oldmail >>>>> $newmail");
             return $guardHandler->authenticateUserAndHandleSuccess(
                 $user,
                 $request,
@@ -92,8 +98,6 @@ class UserController extends AbstractController
 
 
 
-        return $this->render('user/profile.html.twig',['form' => $form->createView()]);
+        return $this->render('user/profile.html.twig', ['form' => $form->createView()]);
     }
-
-
 }
