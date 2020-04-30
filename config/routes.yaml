@@ -19,6 +19,15 @@ quiz_question:
     path: /quiz/{id}/{question_num}
     controller: App\Controller\QuizController::show_question
 
+
+quiz_edit:
+    path: /edit/quiz/{id}
+    controller: App\Controller\QuizController::edit
+
+supp:
+    path: /delete/quiz/{id}
+    controller: App\Controller\QuizController::delete
+
 dashboard:
     path: /dashboard
     controller: App\Controller\UserController::dashboard

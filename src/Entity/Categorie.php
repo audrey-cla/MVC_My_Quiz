@@ -28,6 +28,15 @@ class Categorie
      */
     private $name;
 
+
+    /**
+     * @var string|null
+     *
+     * @ORM\Column(name="question", type="string", length=255, nullable=true, options={"default"="NULL"})
+     */
+    private $question = 'NULL';
+
+
     public function getId(): ?int
     {
         return $this->id;
@@ -41,6 +50,18 @@ class Categorie
     public function setName(string $name): self
     {
         $this->name = $name;
+
+        return $this;
+    }
+    
+    public function getQuestion(): ?string
+    {
+        return $this->question;
+    }
+
+    public function setQuestion(?string $question): self
+    {
+        $this->question = $question;
 
         return $this;
     }

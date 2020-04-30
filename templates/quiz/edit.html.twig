@@ -1,0 +1,9 @@
+
+
+
+{% if is_granted('ROLE_ADMIN') %}
+  editer un quiz ou le supprimer 
+{% else %}
+vous n'etes pas admin;
+
+{% endif %}

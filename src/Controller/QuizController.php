@@ -112,10 +112,12 @@ class QuizController extends AbstractController
         }
 
         if ($session->get('quizz' . $id)) {
-            return new Response(" Vous avez déja effectué ce test et obtenu un score de " . $session->get('quizz' . $id) . ". Voulez-vous recommencer ? <a href='/quiz/$id/1'>Recommencer le test</a>");
+            return new Response(" Vous avez déja effectué ce test et obtenu un score de " . $session->get('quizz' . $id) . ". Voulez-vous recommencer ? <br><a href='/quiz/$id/1'>Recommencer le test</a>");
         } else {
 
-            return new Response('Check out this great product: ' . $quiz->getName()  . "<a href='/quiz/$id/1'>Commencer le test</a>");
+            return new Response('Bienvenue sur le quiz ' . $quiz->getName()  . "! <br><a href='/quiz/$id/1'>Commencer le test</a>");
+            return $this->render('quiz/quiz.html.twig');
+
         }
     }
 
@@ -188,7 +190,6 @@ class QuizController extends AbstractController
                     $entityManager = $this->getDoctrine()->getManager();
                     $entityManager->persist($registerScore);
                     $entityManager->flush();
-
                     return $this->render('quiz/results.html.twig', ['resultat' => $session->get('reponses'), 'outof' => $question_num]);
                 } else {
                     $next = $question_num + 1;
@@ -230,5 +231,21 @@ class QuizController extends AbstractController
             }
         }
         return $this->render('quiz/scoreboard.html.twig', ['scores' => $total]);
+    }
+
+
+    public function delete($id)
+    {
+        //  $user = $this->getDoctrine()->getRepository(User::class)->find($id);
+        // $scores = $this->getDoctrine()->getRepository(Score::class)->findBy(array("user_id" => $id));
+        // $entityManager = $this->getDoctrine()->getManager();
+        // foreach ($scores as $score) {
+        //     $entityManager->remove($score);
+        // }
+        // $entityManager->remove($user);
+
+
+        // $entityManager->flush();
+        return $this->render('index.html.twig');
     }
 }

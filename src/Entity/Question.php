@@ -34,7 +34,7 @@ class Question
      * @ORM\Column(name="question", type="string", length=255, nullable=true, options={"default"="NULL"})
      */
     private $question = 'NULL';
-
+   
     public function getId(): ?int
     {
         return $this->id;
@@ -52,6 +52,7 @@ class Question
         return $this;
     }
 
+   
     public function getQuestion(): ?string
     {
         return $this->question;
@@ -63,6 +64,5 @@ class Question
 
         return $this;
     }
-
 
 }
