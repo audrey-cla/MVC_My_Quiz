@@ -1,8 +1,10 @@
 <?php
 
 namespace App\Controller;
+
 use App\Entity\Categorie;
 use App\Entity\Question;
+
 use App\Entity\Reponse;
 use App\Entity\Score;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -111,13 +113,14 @@ class QuizController extends AbstractController
             return $this->render('index.html.twig');
         }
 
+        $name = $quiz->getName();
         if ($session->get('quizz' . $id)) {
-            return new Response(" Vous avez déja effectué ce test et obtenu un score de " . $session->get('quizz' . $id) . ". Voulez-vous recommencer ? <br><a href='/quiz/$id/1'>Recommencer le test</a>");
+
+            $score = $session->get('quizz' . $id);
+            return $this->render('quiz/quiz.html.twig', ['id' => $id, 'score' => $score, 'name' => $name]);
         } else {
-
-            return new Response('Bienvenue sur le quiz ' . $quiz->getName()  . "! <br><a href='/quiz/$id/1'>Commencer le test</a>");
-            return $this->render('quiz/quiz.html.twig');
-
+            $score = '';
+            return $this->render('quiz/quiz.html.twig',  ['id' => $id, 'name' => $name]);
         }
     }
 
@@ -236,16 +239,25 @@ class QuizController extends AbstractController
 
     public function delete($id)
     {
-        //  $user = $this->getDoctrine()->getRepository(User::class)->find($id);
-        // $scores = $this->getDoctrine()->getRepository(Score::class)->findBy(array("user_id" => $id));
-        // $entityManager = $this->getDoctrine()->getManager();
-        // foreach ($scores as $score) {
-        //     $entityManager->remove($score);
-        // }
-        // $entityManager->remove($user);
 
+        $entityManager = $this->getDoctrine()->getManager();
+        $quizz = $this->getDoctrine()->getRepository(Categorie::class)->findOneBy(array("id" => $id));
+        $scores = $this->getDoctrine()->getRepository(Score::class)->findBy(array("categorie_id" => $id));
+        $questions = $this->getDoctrine()->getRepository(Question::class)->findBy(array("idCategorie" => $id));
 
-        // $entityManager->flush();
+        foreach ($questions as $question) {
+            $reponses = $this->getDoctrine()->getRepository(Reponse::class)->findBy(array("idQuestion" => $question->getId()));
+            foreach ($reponses as $reponse) {
+                $entityManager->remove($reponse);
+            }
+            $entityManager->remove($question);
+        }
+        foreach ($scores as $score) {
+            $entityManager->remove($score);
+        }
+        $entityManager->remove($quizz);
+
+        $entityManager->flush();
         return $this->render('index.html.twig');
     }
 }

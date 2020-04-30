@@ -4,6 +4,14 @@
   {% block body %}
 
     <div class="row bg-warning">
+    
+    
+    {% if score is defined %}
+Vous avez déja effectué le test " {{name}} " et obtenu un score de {{score}} Voulez-vous recommencer ? <br><a href='/quiz/{{id}}/1'>Recommencer le test</a>
+    {% else %}
+  Bienvenue sur le quiz "{{name}} "! 
+  <a href='/quiz/{{id}}/1'>Commencer le test</a>
+    {% endif %}
     </div>
 
 {% endblock %}

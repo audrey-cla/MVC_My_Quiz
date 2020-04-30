@@ -32,7 +32,6 @@ dashboard:
     path: /dashboard
     controller: App\Controller\UserController::dashboard
 
-
 validation:
     path: /validation/{id}/{token}
     controller: App\Controller\UserController::validation
@@ -48,7 +47,6 @@ allUser:
 profile:
     path: /user/{id}
     controller: App\Controller\UserController::show_profile
-
 
 
 delete:

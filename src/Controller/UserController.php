@@ -36,7 +36,6 @@ class UserController extends AbstractController
         if ($validation == '1') {
             $this->addFlash('error', 'Adresse déja vérifiée');
             return $this->render('user/index.html.twig');
-
         } else if ($validation == $token) {
 
             $user->setValidated('1');
@@ -44,20 +43,17 @@ class UserController extends AbstractController
             $entityManager->flush();
             $this->addFlash('success', 'Adresse vérifiée');
             return $this->render('user/index.html.twig');
-
         } else {
             $this->addFlash('error', 'No match');
             return $this->render('user/index.html.twig');
-
         }
-      
     }
 
     public function edit($id, MailerInterface $mailer, Request $request, UserPasswordEncoderInterface $passwordEncoder, GuardAuthenticatorHandler $guardHandler, LoginFormAuthenticator $authenticator)
     {
 
         $user = $this->getDoctrine()->getRepository(User::class)->find($id);
-       
+
 
         $form = $this->createFormBuilder();
         $form = $form->add("username", TextType::class, ['data' => $user->getUsername()])
@@ -98,10 +94,9 @@ class UserController extends AbstractController
                 $user->setEmail($form->get("email")->getData());
             }
 
-            
+
             if ($user->getRoles()[0] != $form->get("role")->getData()) {
                 $user->setRoles([$form->get("role")->getData()]);
-               
             } else {
                 $user->setRoles([$form->get("role")->getData()]);
             }
@@ -111,7 +106,7 @@ class UserController extends AbstractController
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($user);
             $entityManager->flush();
-          
+
             $this->addFlash('success', 'changements effectués');
             return $this->render('user/edit.html.twig', ['form' => $form->createView(), 'user_data' => $user]);
         }
@@ -131,7 +126,11 @@ class UserController extends AbstractController
             $name = $name->getName();
             array_push($total, ["name" => $name, "id" => "$id", "score" => $score]);
         }
-        return $this->render('user/profile.html.twig', ['user_data' => $user, 'scores' => $total]);
+        $stats = [];
+        $quizfait = $this->getDoctrine()->getRepository(Score::class)->findBy(array("user_id" => $user_id));
+        $quiztotal = $this->getDoctrine()->getRepository(Categorie::class)->findAll();
+        array_push($stats, ["quizfait" => count($quizfait), "quiztotal" => count($quiztotal)]);
+        return $this->render('user/profile.html.twig', ['user_data' => $user, 'scores' => $total, 'stats' => $stats]);
     }
 
     public function show_all()

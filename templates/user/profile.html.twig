@@ -17,12 +17,24 @@
     <li>email : {{user_data.email}}</li>
 </ul>
 
+{% if is_granted('ROLE_ADMIN') %}
+    <h3>Les stats</h3>
+
+{% for stat in stats %}
+L'utilisateur  {{user_data.username}} à effectué {{stat.quizfait}} quizz sur un total de {{stat.quiztotal}} disponibles
+Sa moyenne est de   
+{% endfor %}
+
+{% endif %}
+
+
+
+<h3>Les scores</h3>
 {% if scores is empty %}
    Aucune score pour le moment !
 {% else %}
     {% for score in scores %}
-     <h3> <a href="/quiz/{{score['id']}}">{{ score['name'] }} </a></h3><br>
-     votre score etait de {{ score['score']}} 
+     <h6> <a href="/quiz/{{score['id']}}">{{ score['name'] }} </a></h6>le score etait de {{ score['score']}}<hr>
 
      <br>
     {% endfor %}
