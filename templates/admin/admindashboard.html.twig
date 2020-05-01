@@ -1,5 +1,29 @@
-{% extends "base.html.twig" %} {% block body %}
+{% extends "base.html.twig" %} 
 
 
+
+{% block body %}
+
+{% if is_granted('ROLE_ADMIN') %}
 <a href="/create"> creer un quizz</a><br>
-<a href="/user/{{app.user.id}}/edit"> modifier mon profil</a> {% endblock %}
+<a href="/user/{{app.user.id}}/edit"> modifier mon profil</a> <br>
+<a href="/mailing"> envoyer un email</a> 
+<br><br>
+<h3>Les statistiques</h3>
+
+
+<p>{{scores}} quizz ont été effectués. </p>
+
+<p>Il y a membres {{membres}} enregistrés.</p>
+
+<p>Il y a en tout {{quizz}} quizz avec {{questions}} questions.</p>
+{% endif %}
+
+
+
+
+
+
+
+
+{% endblock %}

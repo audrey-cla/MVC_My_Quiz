@@ -48,11 +48,17 @@ profile:
     path: /user/{id}
     controller: App\Controller\UserController::show_profile
 
+mailing:
+    path: /mailing
+    controller: App\Controller\UserController::mailing
 
 delete:
     path: /delete/user/{id}
     controller: App\Controller\UserController::delete
 
+stats_quiz:
+    path: /stats/quiz/{id}
+    controller: App\Controller\QuizController::stats
 
 createQuiz:
     path: /create

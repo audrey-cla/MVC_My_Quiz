@@ -10,6 +10,7 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method Score|null find($id, $lockMode = null, $lockVersion = null)
  * @method Score|null findOneBy(array $criteria, array $orderBy = null)
  * @method Score[]    findAll()
+ * @method Score[]    findByNot(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  * @method Score[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
 class ScoreRepository extends ServiceEntityRepository
@@ -18,6 +19,17 @@ class ScoreRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Score::class);
     }
+
+    // public function findByNot($field, $value)
+    // {
+    //     $qb = $this->createQueryBuilder('a');
+    //     $qb->where($qb->expr()->not($qb->expr()->eq('a.' . $field, '?1')));
+    //     $qb->setParameter(1, $value);
+
+    //     return $qb->getQuery()
+    //         ->getResult();
+    // }
+
 
     // /**
     //  * @return Score[] Returns an array of Score objects

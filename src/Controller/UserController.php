@@ -5,11 +5,15 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Entity\Categorie;
 use App\Entity\Score;
+use App\Entity\Question;
 use App\Security\LoginFormAuthenticator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use App\Repository\ScoreRepository;
+
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Security\Guard\GuardAuthenticatorHandler;
@@ -20,11 +24,14 @@ class UserController extends AbstractController
 {
     public function dashboard()
     {
-
-        if ($this->getUser()->getRoles() == "ROLE_USER") {
-            return $this->render('user/index.html.twig');
+        if ($this->isGranted('ROLE_ADMIN')) {
+            $scores = $this->getDoctrine()->getRepository(Score::class)->findAll();
+            $membrestotal = $this->getDoctrine()->getRepository(User::class)->findAll();
+            $quiztotal = $this->getDoctrine()->getRepository(Categorie::class)->findAll();
+            $questiontotal = $this->getDoctrine()->getRepository(Question::class)->findAll();
+            return $this->render('admin/admindashboard.html.twig', ["scores" => count($scores), "membres" => count($membrestotal), "quizz" => count($quiztotal), "questions" => count($questiontotal)]);
         } else {
-            return $this->render('admin/admindashboard.html.twig');
+            return $this->render('user/index.html.twig');
         }
     }
 
@@ -37,13 +44,14 @@ class UserController extends AbstractController
             $this->addFlash('error', 'Adresse déja vérifiée');
             return $this->render('user/index.html.twig');
         } else if ($validation == $token) {
-
             $user->setValidated('1');
             $entityManager->persist($user);
             $entityManager->flush();
+            $this->get('session')->getFlashBag()->clear();
             $this->addFlash('success', 'Adresse vérifiée');
             return $this->render('user/index.html.twig');
         } else {
+            $this->get('session')->getFlashBag()->clear();
             $this->addFlash('error', 'No match');
             return $this->render('user/index.html.twig');
         }
@@ -51,10 +59,7 @@ class UserController extends AbstractController
 
     public function edit($id, MailerInterface $mailer, Request $request, UserPasswordEncoderInterface $passwordEncoder, GuardAuthenticatorHandler $guardHandler, LoginFormAuthenticator $authenticator)
     {
-
         $user = $this->getDoctrine()->getRepository(User::class)->find($id);
-
-
         $form = $this->createFormBuilder();
         $form = $form->add("username", TextType::class, ['data' => $user->getUsername()])
             ->add("email", TextType::class, ['data' => $user->getEmail()])
@@ -94,7 +99,6 @@ class UserController extends AbstractController
                 $user->setEmail($form->get("email")->getData());
             }
 
-
             if ($user->getRoles()[0] != $form->get("role")->getData()) {
                 $user->setRoles([$form->get("role")->getData()]);
             } else {
@@ -106,8 +110,8 @@ class UserController extends AbstractController
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($user);
             $entityManager->flush();
-
-            $this->addFlash('success', 'changements effectués');
+            $this->get('session')->getFlashBag()->clear();
+            $this->addFlash('yesedit', 'changements effectués');
             return $this->render('user/edit.html.twig', ['form' => $form->createView(), 'user_data' => $user]);
         }
         return $this->render('user/edit.html.twig', ['form' => $form->createView(), 'user_data' => $user]);
@@ -116,8 +120,7 @@ class UserController extends AbstractController
     public function show_profile($id)
     {
         $user = $this->getDoctrine()->getRepository(User::class)->find($id);
-        $user_id = $user->getID();
-        $avant = $this->getDoctrine()->getRepository(Score::class)->findBy(array("user_id" => $user_id));
+        $avant = $this->getDoctrine()->getRepository(Score::class)->findBy(array("user_id" => $user->getID()));
         $total = array();
         foreach ($avant as $test) {
             $id = $test->getCategorieId();
@@ -127,7 +130,7 @@ class UserController extends AbstractController
             array_push($total, ["name" => $name, "id" => "$id", "score" => $score]);
         }
         $stats = [];
-        $quizfait = $this->getDoctrine()->getRepository(Score::class)->findBy(array("user_id" => $user_id));
+        $quizfait = $this->getDoctrine()->getRepository(Score::class)->findBy(array("user_id" => $user->getID()));
         $quiztotal = $this->getDoctrine()->getRepository(Categorie::class)->findAll();
         array_push($stats, ["quizfait" => count($quizfait), "quiztotal" => count($quiztotal)]);
         return $this->render('user/profile.html.twig', ['user_data' => $user, 'scores' => $total, 'stats' => $stats]);
@@ -135,9 +138,7 @@ class UserController extends AbstractController
 
     public function show_all()
     {
-        $users = $this->getDoctrine()->getRepository(User::class)->findAll();
-
-        return $this->render('user/all.html.twig', ['users' => $users]);
+        return $this->render('user/all.html.twig', ['users' => $this->getDoctrine()->getRepository(User::class)->findAll()]);
     }
 
     public function delete($id)
@@ -149,11 +150,66 @@ class UserController extends AbstractController
             $entityManager->remove($score);
         }
         $entityManager->remove($user);
-
-
         $entityManager->flush();
-
-
         return $this->render('user/index.html.twig');
+    }
+
+    public function mailing(Request $request, MailerInterface $mailer)
+    {
+        $categories = $this->getDoctrine()->getRepository(Categorie::class)->findAll();
+        $count = count($categories);
+        $form = $this->createFormBuilder();
+        $form = $form->add("choix", ChoiceType::class, [
+            'choices'  => [
+                "Inclure" => 0,
+                "Exclure" => 1,
+                "A tous" => 2,
+            ],
+            'expanded' => true,
+            'multiple' => false
+        ]);
+        $tableau = [];
+        for ($x = 0; $x < $count; $x++) {
+            $nom = $categories[$x]->getName();
+            $id = $categories[$x]->getId();
+            array_push($tableau, [$nom => $id]);
+        }
+        $form = $form->add("board", ChoiceType::class, [
+            'choices'  => $tableau,
+            'expanded' => false,
+            'multiple' => false
+        ]);
+        $form = $form->add("message", TextareaType::class);
+        $form = $form->add('save', SubmitType::class, ['label' => 'Valider le quiz']);
+        $form = $form->getForm();
+        $form->handleRequest($request);
+        if ($request->isMethod('POST')) {
+            if ($form->isSubmitted() && $form->isValid()) {
+                switch ($form->get("choix")->getData()) {
+                    case 0:
+                        $sendTo = $this->getDoctrine()->getRepository(Score::class)->findBy(array("categorie_id" => $form->get("board")->getData()));
+                        break;
+                    case 1:
+                        // $exclure = $this->getDoctrine()->getManager()->getRepository(Score::class)->findByNot('id');                      
+                        break;
+                    case 2:
+                        $sendTo = $this->getDoctrine()->getRepository(Score::class)->findAll();
+                        break;
+                }
+                foreach ($sendTo as $user) {
+                    $user = $this->getDoctrine()->getRepository(User::class)->findOneBy(array("id" => $user->getUserId()));
+                    $email = (new Email())
+                        ->from('quiveutgagnerdelargentenmasse@example.com')
+                        ->to($user->getEmail())
+                        ->cc('mailtrapqa@example.com')
+                        ->html($form->get("message")->getData());
+                    $mailer->send($email);
+                }
+            }
+        }
+
+
+
+        return $this->render('admin/mailer.html.twig', ['form' => $form->createView()]);
     }
 }

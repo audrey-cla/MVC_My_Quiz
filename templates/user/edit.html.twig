@@ -3,6 +3,15 @@
 
 {% block body %}
 
+{% for message in app.flashes('yesedit') %}
+            <div class="alert alert-success">
+                {{ message }}
+            </div>
+            {# break #}
+        {% endfor %}
+      
+
+
 
  {% if app.user.id == user_data.id or is_granted('ROLE_ADMIN')%} 
 

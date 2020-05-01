@@ -3,15 +3,20 @@
 
   {% block body %}
 
-    <div class="row bg-warning">
     
     
+     {% if is_granted('ROLE_ADMIN')%} 
+  <p> <a href='/delete/quiz/{{id}}'>Suprimer le quiz</a></p>
+   <p><a href='/stats/quiz/{{id}}'>Voir les stats du quiz</a></p>
+
+{% endif %}
+
     {% if score is defined %}
 Vous avez déja effectué le test " {{name}} " et obtenu un score de {{score}} Voulez-vous recommencer ? <br><a href='/quiz/{{id}}/1'>Recommencer le test</a>
     {% else %}
   Bienvenue sur le quiz "{{name}} "! 
-  <a href='/quiz/{{id}}/1'>Commencer le test</a>
+  <a class="button" href='/quiz/{{id}}/1'>Commencer le test</a>
     {% endif %}
-    </div>
+
 
 {% endblock %}

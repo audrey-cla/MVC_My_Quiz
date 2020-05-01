@@ -1,0 +1,10 @@
+{% extends "base.html.twig" %}
+
+
+  {% block body %}
+<h3>Les stats</h3>
+ {% if is_granted('ROLE_ADMIN')%} 
+{{stats}} personnes ont effectué le test.
+
+{% endif %}
+{% endblock %}

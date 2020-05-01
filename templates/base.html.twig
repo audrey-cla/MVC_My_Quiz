@@ -22,7 +22,6 @@
         <a class="nav-item nav-link active" href="/quiz">Tous les Quizz</a>
       <a class="nav-item nav-link" href="/user/all">Membres</a>
       <a class="nav-item nav-link" href="/quiz/scores">Mes Scores</a>
-
         {% endblock %}
 
  {% if app.user %}
@@ -38,7 +37,7 @@
 
  <div class="row w-100 p-0 m-0" style="min-height: 94%;height: 94%;" >
   <div class="col-2 bg-dark border-dark border-bottom"></div>
-  <div class="col-8">
+  <div class="col-8 bg-white">
     {% block body %}
     {% endblock %}
     {% block javascripts %}

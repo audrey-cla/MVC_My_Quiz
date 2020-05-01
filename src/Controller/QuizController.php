@@ -4,13 +4,11 @@ namespace App\Controller;
 
 use App\Entity\Categorie;
 use App\Entity\Question;
-
 use App\Entity\Reponse;
 use App\Entity\Score;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Csrf\CsrfExtension;
 use Symfony\Component\Form\Forms;
@@ -26,8 +24,7 @@ class QuizController extends AbstractController
 {
     public function index()
     {
-        $quizzs = $this->getDoctrine()->getRepository(Categorie::class)->findAll();
-        return $this->render('quiz/index.html.twig', ['quizzs' => $quizzs]);
+        return $this->render('quiz/index.html.twig', ['quizzs' => $this->getDoctrine()->getRepository(Categorie::class)->findAll()]);
     }
 
     public function createQuiz(Request $request, $id = 10)
@@ -112,10 +109,8 @@ class QuizController extends AbstractController
         if (!$quiz) {
             return $this->render('index.html.twig');
         }
-
         $name = $quiz->getName();
         if ($session->get('quizz' . $id)) {
-
             $score = $session->get('quizz' . $id);
             return $this->render('quiz/quiz.html.twig', ['id' => $id, 'score' => $score, 'name' => $name]);
         } else {
@@ -137,7 +132,6 @@ class QuizController extends AbstractController
         $question = $this->getDoctrine()->getRepository(Question::class)->findBy(array("idCategorie" => $id), null, 1, $offset);
         $question = $question[0];
         $reponses = $this->getDoctrine()->getRepository(Reponse::class)->findBy(array("idQuestion" => $question->getId()), null);
-
         $csrfGenerator = new UriSafeTokenGenerator();
         $csrfStorage = new SessionTokenStorage($session);
         $csrfManager = new CsrfTokenManager($csrfGenerator, $csrfStorage);
@@ -168,9 +162,11 @@ class QuizController extends AbstractController
                 $answered = $session->get('reponses');
                 $answered = (int) $answered;
                 if ($reponses[$answer]->getReponseExpected() == true) {
+                    $this->get('session')->getFlashBag()->clear();
                     $this->addFlash('success', 'BONNE REPONSE');
                     $session->set('reponses', $answered + 1);
                 } else {
+                    $this->get('session')->getFlashBag()->clear();
                     $this->addFlash('error', 'MAUVAISE REPONSE');
                     $session->set('reponses', $answered + 0);
                 }
@@ -236,15 +232,12 @@ class QuizController extends AbstractController
         return $this->render('quiz/scoreboard.html.twig', ['scores' => $total]);
     }
 
-
     public function delete($id)
     {
-
         $entityManager = $this->getDoctrine()->getManager();
         $quizz = $this->getDoctrine()->getRepository(Categorie::class)->findOneBy(array("id" => $id));
         $scores = $this->getDoctrine()->getRepository(Score::class)->findBy(array("categorie_id" => $id));
         $questions = $this->getDoctrine()->getRepository(Question::class)->findBy(array("idCategorie" => $id));
-
         foreach ($questions as $question) {
             $reponses = $this->getDoctrine()->getRepository(Reponse::class)->findBy(array("idQuestion" => $question->getId()));
             foreach ($reponses as $reponse) {
@@ -256,8 +249,13 @@ class QuizController extends AbstractController
             $entityManager->remove($score);
         }
         $entityManager->remove($quizz);
-
         $entityManager->flush();
         return $this->render('index.html.twig');
+    }
+
+    public function stats($id)
+    {
+        $stats = $this->getDoctrine()->getRepository(Score::class)->findBy(array('categorie_id' => $id));
+        return $this->render('quiz/stats.html.twig', ["stats" => count($stats), "id" => $id]);
     }
 }
